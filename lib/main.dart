@@ -7,12 +7,12 @@ import 'dart:convert';
 const request = "https://api.hgbrasil.com/finance?key=bb338763";
 
 void main() async {
-  runApp(MaterialApp(home: Home(),
-  theme: ThemeData(
-  inputDecorationTheme: InputDecorationTheme(
-  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white))
-  )
-  )));
+  runApp(MaterialApp(
+      home: Home(),
+      theme: ThemeData(
+          inputDecorationTheme: InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white))))));
 }
 
 Future<Map> getData() async {
@@ -26,9 +26,32 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
 
-double dollar;
-double euro;
+  double dolar;
+  double euro;
+
+  void _realChanged(String text) {
+    double real = double.parse(text);
+    dolarController.text = (real / dolar).toStringAsFixed(2);
+    euroController.text = (real / euro).toStringAsFixed(2);
+  }
+
+  void _dolarChanged(String text) {
+    double dolar = double.parse(text);
+    realController.text = (dolar * this.dolar).toStringAsFixed(2);
+    euroController.text = (dolar * this.dolar / euro).toStringAsFixed(2);
+  }
+
+  void _euroChanged(String text) {
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro).toStringAsFixed(2);
+    dolarController.text = (euro * this.euro / dolar).toStringAsFixed(2);
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -60,22 +83,25 @@ double euro;
                     textAlign: TextAlign.center,
                   ));
                 } else {
-                  dollar=snapshot.data["results"]["currencies"]["USD"]["buy"];
-                  euro=snapshot.data["results"]["currencies"]["EUR"]["buy"];
+                  dolar = snapshot.data["results"]["currencies"]["USD"]["buy"];
+                  euro = snapshot.data["results"]["currencies"]["EUR"]["buy"];
                   return SingleChildScrollView(
                     padding: EdgeInsets.all(10.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        Icon(Icons.monetization_on,size:150.0,color: Colors.amber),
-                       buildTextField("Real","R\$"),
+                        Icon(Icons.monetization_on,
+                            size: 150.0, color: Colors.amber),
+                        buildTextField(
+                            "Real", "R\$", realController, _realChanged),
                         Divider(),
-                        buildTextField("Dolar","US\$"),
+                        buildTextField(
+                            "Dolar", "US\$", dolarController, _dolarChanged),
                         Divider(),
-                        buildTextField("Euro","€\$"),
-
+                        buildTextField(
+                            "Euro", "€\$", euroController, _euroChanged),
                       ],
-                    ) ,
+                    ),
                   );
                 }
             }
@@ -84,8 +110,10 @@ double euro;
   }
 }
 
-Widget buildTextField(String label, String prefix){
+Widget buildTextField(
+    String label, String prefix, TextEditingController c, Function f) {
   return TextField(
+    controller: c,
     decoration: InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.amber),
@@ -93,8 +121,8 @@ Widget buildTextField(String label, String prefix){
       prefixText: prefix,
       prefixStyle: TextStyle(color: Colors.amber),
     ),
-    style: TextStyle(
-        color: Colors.amber,fontSize: 25.0
-    ),
+    style: TextStyle(color: Colors.amber, fontSize: 25.0),
+    onChanged: f,
+    keyboardType: TextInputType.number,
   );
 }
