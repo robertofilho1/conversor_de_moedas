@@ -7,7 +7,12 @@ import 'dart:convert';
 const request = "https://api.hgbrasil.com/finance?key=bb338763";
 
 void main() async {
-  runApp(MaterialApp(home: Home()));
+  runApp(MaterialApp(home: Home(),
+  theme: ThemeData(
+  inputDecorationTheme: InputDecorationTheme(
+  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white))
+  )
+  )));
 }
 
 Future<Map> getData() async {
@@ -21,6 +26,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+double dollar;
+double euro;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,12 +60,41 @@ class _HomeState extends State<Home> {
                     textAlign: TextAlign.center,
                   ));
                 } else {
-                  return Container(
-                    color: Colors.green,
+                  dollar=snapshot.data["results"]["currencies"]["USD"]["buy"];
+                  euro=snapshot.data["results"]["currencies"]["EUR"]["buy"];
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Icon(Icons.monetization_on,size:150.0,color: Colors.amber),
+                       buildTextField("Real","R\$"),
+                        Divider(),
+                        buildTextField("Dolar","US\$"),
+                        Divider(),
+                        buildTextField("Euro","€\$"),
+
+                      ],
+                    ) ,
                   );
                 }
             }
           },
         ));
   }
+}
+
+Widget buildTextField(String label, String prefix){
+  return TextField(
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.amber),
+      border: OutlineInputBorder(),
+      prefixText: prefix,
+      prefixStyle: TextStyle(color: Colors.amber),
+    ),
+    style: TextStyle(
+        color: Colors.amber,fontSize: 25.0
+    ),
+  );
 }
